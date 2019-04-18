@@ -1,3 +1,5 @@
+package ru.reitz_rss_bot;
+
 import com.sun.syndication.feed.synd.SyndEntry;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -8,11 +10,26 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.Keyboard
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class Bot extends TelegramLongPollingBot {
-    public static List<SyndEntry> feedList = new ArrayList<>();
+    /**
+     * Список с записями ленты новостей
+     */
+    static List<SyndEntry> feedList = new ArrayList<>();
+    /**
+     * Индекс паказываемой новости
+     */
+    static int index = 0;
+    /**
+     * Индекс первой новой новости
+     */
+    static int indexOfNewEntry = 0;
+    /**
+     * Признак наличия новых записей в списке feedList
+     */
+    static boolean hasNewEntry = false;
+
 
     /**
      * Метод для приема сообщений.
@@ -20,19 +37,18 @@ public class Bot extends TelegramLongPollingBot {
      * @param update Содержит сообщение от пользователя.
      */
     public void onUpdateReceived(Update update) {
-        //System.out.println(update.getMessage().getFrom().getFirstName() + ": " + update.getMessage().getText());
         Message message = update.getMessage();
         if (message != null && message.hasText()) {
             switch (message.getText()) {
                 case "/start":
                 case "Далее":
-                    sendMsg(message, getFirstEntry());
+                    sendMsg(message, getNextEntry());
                     break;
                 case "Сначала":
-                    sendMsg(message, "Сначала");
+                    sendMsg(message, getFirstEntry());
                     break;
                 case "Сначала*":
-                    sendMsg(message, "Сначала!");
+                    sendMsg(message, getFirstEntryWithAsterisk());
                     break;
                 default:
                     sendMsg(message, "Неизвестная команда.");
@@ -53,16 +69,14 @@ public class Bot extends TelegramLongPollingBot {
     /**
      * Метод для настройки сообщения и его отправки.
      *
-     * @param s Строка, которую необходимот отправить в качестве сообщения.
+     * @param s Строка, которую необходимо отправить в качестве сообщения.
      */
-
     private void sendMsg(Message message, String s) {
         SendMessage sendMessage = new SendMessage();
         sendMessage.enableMarkdown(true);
         sendMessage.setChatId(message.getChatId().toString());
-        sendMessage.setReplyToMessageId(message.getMessageId());
         sendMessage.setText(s);
-        setButtons(sendMessage, !s.equals("Далее"));
+        setButtons(sendMessage);
         try {
             execute(sendMessage);
         } catch (TelegramApiException e) {
@@ -70,14 +84,13 @@ public class Bot extends TelegramLongPollingBot {
         }
     }
 
-
     /**
      * Метод возвращает имя бота, указанное при регистрации.
      *
      * @return имя бота
      */
     public String getBotUsername() {
-        return "reitz_rss_bot";
+        return Main.botName;
     }
 
     /**
@@ -86,16 +99,51 @@ public class Bot extends TelegramLongPollingBot {
      * @return token для бота
      */
     public String getBotToken() {
-        return "";
+        return Main.botToken;
     }
 
-    public String getFirstEntry() {
-        String s = RSSParser.printEntry(feedList.get(feedList.size() - 1));
-        feedList.remove(feedList.size() - 1);
+    /**
+     * Обработка кнопки Далее
+     *
+     * @return строку-ответ
+     */
+    private String getNextEntry() {
+        if (index >= feedList.size())
+            index = 0;
+
+        String s = RSSParser.printEntry(feedList.get(index));
+        index++;
+
         return s;
     }
 
-    public synchronized void setButtons(SendMessage sendMessage, boolean hasNewEntry) {
+    /**
+     * Обработка кнопки Сначала
+     *
+     * @return строку-ответ
+     */
+    private String getFirstEntry() {
+        index = 0;
+        return getNextEntry();
+    }
+
+    /**
+     * Обработка кнопки Сначала*
+     *
+     * @return строку-ответ
+     */
+    private String getFirstEntryWithAsterisk() {
+        index = indexOfNewEntry;
+        hasNewEntry = false;
+        return getNextEntry();
+    }
+
+    /**
+     * Метод для настройки кастомной клавиатуры в чате
+     *
+     * @param sendMessage
+     */
+    private synchronized void setButtons(SendMessage sendMessage) {
         // Создаем клавиуатуру
         ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
         sendMessage.setReplyMarkup(replyKeyboardMarkup);
