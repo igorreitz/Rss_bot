@@ -13,6 +13,15 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import java.util.*;
 
 public class Bot extends TelegramLongPollingBot {
+
+    /**
+     * Имя бота
+     */
+    private String botName = "";
+    /**
+     * Токен бота
+     */
+    private String botToken = "";
     /**
      * Список с записями ленты новостей
      */
@@ -30,6 +39,13 @@ public class Bot extends TelegramLongPollingBot {
      */
     boolean hasNewEntry = false;
 
+    void setBotName(String botName) {
+        this.botName = botName;
+    }
+
+    void setBotToken(String botToken) {
+        this.botToken = botToken;
+    }
 
     /**
      * Метод для приема сообщений.
@@ -90,7 +106,7 @@ public class Bot extends TelegramLongPollingBot {
      * @return имя бота
      */
     public String getBotUsername() {
-        return Main.botName;
+        return botName;
     }
 
     /**
@@ -99,7 +115,7 @@ public class Bot extends TelegramLongPollingBot {
      * @return token для бота
      */
     public String getBotToken() {
-        return Main.botToken;
+        return botToken;
     }
 
     /**
