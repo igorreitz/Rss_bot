@@ -13,7 +13,6 @@ public class Main {
     static String botName = "reitz_rss_bot";
     static String botToken = "ВСТАВЬ СЮДА ТОКЕН";
     private static String RSSUrl = "https://news.mail.ru/rss/main/91/";
-    //private static String RSSUrl = "https://awas1952.livejournal.com/data/rss";
 
     /**
      * Точка входа
@@ -37,8 +36,8 @@ public class Main {
 
             //Первичное заполнение хранилища новостями
             RSSParser parser = new RSSParser();
-            Bot.feedList.addAll(parser.parseFeed(RSSUrl).getEntries());
-            Bot.feedList.sort(Comparator.comparing(SyndEntry::getPublishedDate));
+            bot.feedList.addAll(parser.parseFeed(RSSUrl).getEntries());
+            bot.feedList.sort(Comparator.comparing(SyndEntry::getPublishedDate));
             //Настраиваем и запускаем парсинг раз в MINUTES минут
             int MINUTES = 10; // Период запроса новостей из ленты
             Timer timer = new Timer();
@@ -50,10 +49,10 @@ public class Main {
                                 parser.parseFeed(RSSUrl).getEntries();
                         parsedEntryList.sort(Comparator.comparing(SyndEntry::getPublishedDate));
                         parsedEntryList.forEach(entry -> {
-                            if (!Bot.feedList.contains(entry)) {
-                                Bot.indexOfNewEntry = Bot.feedList.size();
-                                Bot.hasNewEntry = true;
-                                Bot.feedList.add(entry);
+                            if (!bot.feedList.contains(entry)) {
+                                bot.indexOfNewEntry = bot.feedList.size();
+                                bot.hasNewEntry = true;
+                                bot.feedList.add(entry);
                             }
                         });
                     } catch (FeedException | IOException e) {

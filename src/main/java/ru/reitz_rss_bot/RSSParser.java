@@ -30,8 +30,8 @@ class RSSParser {
      * @param entry запись ленты
      * @return запись в виде строки
      */
-    static String printEntry(SyndEntry entry) {
-        return Bot.index + 1 + "/" + Bot.feedList.size() + " " + entry.getPublishedDate() + "\n"
+    static String printEntry(SyndEntry entry, Bot bot) {
+        return bot.index + 1 + "/" + bot.feedList.size() + " " + entry.getPublishedDate() + "\n"
                 + entry.getAuthor() + "\n" + entry.getLink();
     }
 }

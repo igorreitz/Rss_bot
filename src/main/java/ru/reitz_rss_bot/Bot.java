@@ -16,19 +16,19 @@ public class Bot extends TelegramLongPollingBot {
     /**
      * Список с записями ленты новостей
      */
-    static List<SyndEntry> feedList = new ArrayList<>();
+    List<SyndEntry> feedList = new ArrayList<>();
     /**
      * Индекс паказываемой новости
      */
-    static int index = 0;
+    int index = 0;
     /**
      * Индекс первой новой новости
      */
-    static int indexOfNewEntry = 0;
+    int indexOfNewEntry = 0;
     /**
      * Признак наличия новых записей в списке feedList
      */
-    static boolean hasNewEntry = false;
+    boolean hasNewEntry = false;
 
 
     /**
@@ -111,7 +111,7 @@ public class Bot extends TelegramLongPollingBot {
         if (index >= feedList.size())
             index = 0;
 
-        String s = RSSParser.printEntry(feedList.get(index));
+        String s = RSSParser.printEntry(feedList.get(index),this);
         index++;
 
         return s;
