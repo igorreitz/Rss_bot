@@ -1,6 +1,8 @@
 package ru.reitz_rss_bot;
 
 import com.sun.syndication.feed.synd.SyndEntry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
@@ -13,6 +15,10 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import java.util.*;
 
 public class Bot extends TelegramLongPollingBot {
+    /**
+     * Логгер
+     */
+    private static final Logger log = LoggerFactory.getLogger(Bot.class);
 
     /**
      * Имя бота
@@ -57,16 +63,21 @@ public class Bot extends TelegramLongPollingBot {
         if (message != null && message.hasText()) {
             switch (message.getText()) {
                 case "/start":
+                    log.info("Message /start received");
                 case "Далее":
+                    log.info("Message next received");
                     sendMsg(message, getNextEntry());
                     break;
                 case "Сначала":
+                    log.info("Message get_first received");
                     sendMsg(message, getFirstEntry());
                     break;
                 case "Сначала*":
+                    log.info("Message get_first* received");
                     sendMsg(message, getFirstEntryWithAsterisk());
                     break;
                 default:
+                    log.info("Unknown command received");
                     sendMsg(message, "Неизвестная команда.");
                     break;
             }
@@ -96,7 +107,7 @@ public class Bot extends TelegramLongPollingBot {
         try {
             execute(sendMessage);
         } catch (TelegramApiException e) {
-            e.printStackTrace();
+            log.error("Telegram connection error");
         }
     }
 

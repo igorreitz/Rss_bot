@@ -8,9 +8,17 @@ import com.sun.syndication.feed.synd.SyndFeed;
 import com.sun.syndication.io.FeedException;
 import com.sun.syndication.io.SyndFeedInput;
 import com.sun.syndication.io.XmlReader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 class RSSParser {
+
+    /**
+     * Логгер
+     */
+    private static final Logger log = LoggerFactory.getLogger(RSSParser.class);
+
     /**
      * Метод для парсинга RSS ленты
      *
@@ -21,6 +29,7 @@ class RSSParser {
      * @throws IOException
      */
     SyndFeed parseFeed(String url) throws IllegalArgumentException, FeedException, IOException {
+        log.info("Parsing of {}", url);
         return new SyndFeedInput().build(new XmlReader(new URL(url)));
     }
 
@@ -31,7 +40,9 @@ class RSSParser {
      * @return запись в виде строки
      */
     static String printEntry(SyndEntry entry, Bot bot) {
-        return bot.index + 1 + "/" + bot.feedList.size() + " " + entry.getPublishedDate() + "\n"
+        String result = bot.index + 1 + "/" + bot.feedList.size() + " " + entry.getPublishedDate() + "\n"
                 + entry.getAuthor() + "\n" + entry.getLink();
+        log.info("News string generated: {}", entry.getPublishedDate() + " " + entry.getAuthor() + " " + entry.getLink());
+        return result;
     }
 }
